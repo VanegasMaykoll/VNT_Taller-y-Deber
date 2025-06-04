@@ -172,10 +172,6 @@ def main(args=None):
 * Al finalizar (por ejemplo, al presionar Ctrl+C), se destruye el nodo y se apaga ROS 2.
 ---
 
-¡Perfecto! Aquí tienes la sección **mejorada y explicada** del nodo `triangle_mover.py`, con el propósito de que los estudiantes comprendan **cada parte del código**:
-
----
-
 ## 📤 Parte 5: Nodo Publisher — `triangle_mover.py`
 
 Primero, creamos el archivo del nodo:
