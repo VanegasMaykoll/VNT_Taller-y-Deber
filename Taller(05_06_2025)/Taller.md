@@ -326,7 +326,72 @@ def main(args=None):
   
 ---
 
-## 🚀 Parte 6: Compilar y ejecutar
+## ⚙️ Parte 6: Configuración del archivo `setup.py`
+
+Para que los nodos Python del paquete puedan ser ejecutados directamente con `ros2 run`, es necesario registrarlos en el archivo `setup.py` dentro de la sección `entry_points`.
+
+Si ya tienes este archivo generado automáticamente, modifícalo así:
+
+### 📝 Modificación del archivo `setup.py`
+
+```python
+from setuptools import find_packages, setup
+
+package_name = 'turtle_controller'
+
+setup(
+    name=package_name,
+    version='0.0.0',
+    packages=find_packages(exclude=['test']),
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='anthony',
+    maintainer_email='anthony@todo.todo',
+    description='TODO: Package description',
+    license='TODO: License declaration',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'odom_listener = turtle_controller.odom_listener:main',
+            'triangle_mover = turtle_controller.triangle_mover:main',
+        ],
+    },
+)
+```
+
+### 🔍 Explicación
+
+* En `console_scripts`, se define una lista de scripts que ROS 2 podrá ejecutar como nodos.
+* Cada entrada tiene el formato:
+
+  ```bash
+  nombre_comando = paquete.nombre_archivo:función_principal
+  ```
+
+  Por ejemplo:
+
+  * `odom_listener` es el nombre con el que ejecutarás el nodo:
+
+    ```bash
+    ros2 run turtle_controller odom_listener
+    ```
+  * Este nombre se vincula con el archivo `odom_listener.py` dentro de la carpeta del paquete y su función `main()`.
+
+⚠️ **Nota importante:** Asegúrate de que ambos archivos (`odom_listener.py` y `triangle_mover.py`) estén dentro de la carpeta `turtle_controller/turtle_controller/`, y que tengan permisos de ejecución. Posicionarse en la carpeta que contiene a los nodos (turtle_controller) y ejecutar:
+
+```bash
+chmod +x odom_listener.py
+chmod +x triangle_mover.py
+```
+
+---
+
+## 🚀 Parte 7: Compilar y ejecutar
 
 ```bash
 cd ~/ros2_ws
@@ -340,7 +405,6 @@ Lanzar los nodos en terminales separadas:
 ros2 run turtle_controller odom_listener
 ros2 run turtle_controller triangle_mover
 ```
-
 ---
 
 ## 📤 Entregables
