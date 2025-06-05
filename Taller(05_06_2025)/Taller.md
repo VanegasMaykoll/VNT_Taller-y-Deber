@@ -77,8 +77,10 @@ chmod +x odom_listener.py
 
 ### 📘 ¿Qué hace este nodo?
 
-- Se suscribe al tópico `/turtle1/pose`, donde Turtlesim publica su odometría.
-- Cada vez que recibe una actualización, imprime en consola las coordenadas X, Y y el ángulo `theta`.
+* Se suscribe al tópico `/turtle1/pose`, donde Turtlesim publica su odometría.
+* Calcula la distancia total recorrida por la tortuga sumando los desplazamientos entre cada par de puntos.
+* Publica esa distancia acumulada en el tópico `/turtle1/path_length`.
+* Muestra la distancia total en consola y permite visualizarla con `rqt_plot`.
 
 ### 📄 Código:
 
@@ -86,19 +88,32 @@ chmod +x odom_listener.py
 import rclpy
 from rclpy.node import Node
 from turtlesim.msg import Pose
+from std_msgs.msg import Float32
+import math
 
 class OdomListener(Node):
     def __init__(self):
         super().__init__('odom_listener')
-        self.subscription = self.create_subscription(
-            Pose,
-            '/turtle1/pose',
-            self.listener_callback,
-            10)
+        self.subscription = self.create_subscription(Pose, '/turtle1/pose', self.pose_callback, 10)
+        self.publisher = self.create_publisher(Float32, '/turtle1/path_length', 10)
 
-    def listener_callback(self, msg):
-        self.get_logger().info(
-            f'Odom: x={msg.x:.2f}, y={msg.y:.2f}, theta={msg.theta:.2f}')
+        self.last_pose = None
+        self.total_distance = 0.0
+
+    def pose_callback(self, msg):
+        if self.last_pose is not None:
+            dx = msg.x - self.last_pose.x
+            dy = msg.y - self.last_pose.y
+            increment = math.hypot(dx, dy)
+            self.total_distance += increment
+
+        self.last_pose = msg
+
+        msg_out = Float32()
+        msg_out.data = self.total_distance
+        self.publisher.publish(msg_out)
+
+        self.get_logger().info(f"Distancia total recorrida: {self.total_distance:.2f} unidades")
 
 def main(args=None):
     rclpy.init(args=args)
@@ -114,47 +129,64 @@ def main(args=None):
 import rclpy
 from rclpy.node import Node
 from turtlesim.msg import Pose
+from std_msgs.msg import Float32
+import math
 ```
-
 * Se importan los módulos necesarios:
 
-  * `rclpy`: la biblioteca cliente de ROS 2 para Python.
-  * `Node`: clase base para crear nodos.
-  * `Pose`: tipo de mensaje que contiene los datos de odometría de Turtlesim.
+  * `Pose`: para recibir la posición de la tortuga.
+  * `Float32`: para publicar la distancia total recorrida.
+  * `math`: para usar funciones como `hypot` que calcula distancia euclidiana.
 
 ```python
 class OdomListener(Node):
     def __init__(self):
         super().__init__('odom_listener')
 ```
-
-* Se define una clase llamada `OdomListener`, que hereda de `Node`, lo que convierte esta clase en un nodo ROS 2.
-* En el constructor (`__init__`), se inicializa el nodo con el nombre `"odom_listener"`.
+* Se define un nodo llamado `odom_listener`.
 
 ```python
-        self.subscription = self.create_subscription(
-            Pose,
-            '/turtle1/pose',
-            self.listener_callback,
-            10)
+        self.subscription = self.create_subscription(Pose, '/turtle1/pose', self.pose_callback, 10)
+        self.publisher = self.create_publisher(Float32, '/turtle1/path_length', 10)
 ```
+* El nodo:
 
-* Aquí se crea una **suscripción**:
-
-  * El tipo de mensaje que espera es `Pose`.
-  * El tópico al que se suscribe es `/turtle1/pose`.
-  * La función que se ejecutará cada vez que se reciba un mensaje es `self.listener_callback`.
-  * El número `10` indica el tamaño del búfer o *queue* de mensajes.
+  * Se suscribe al tópico `/turtle1/pose`.
+  * Publica en `/turtle1/path_length` la distancia total recorrida acumulada.
 
 ```python
-    def listener_callback(self, msg):
-        self.get_logger().info(
-            f'Odom: x={msg.x:.2f}, y={msg.y:.2f}, theta={msg.theta:.2f}')
+        self.last_pose = None
+        self.total_distance = 0.0
 ```
+* Guarda la última posición conocida para poder calcular los incrementos de distancia.
 
-* Esta función se llama automáticamente cuando llega un mensaje.
-* `msg` es el mensaje de tipo `Pose` recibido.
-* La función extrae los valores `x`, `y` y `theta` y los imprime en consola usando el *logger* del nodo con formato de 2 decimales.
+```python
+    def pose_callback(self, msg):
+        if self.last_pose is not None:
+            dx = msg.x - self.last_pose.x
+            dy = msg.y - self.last_pose.y
+            increment = math.hypot(dx, dy)
+            self.total_distance += increment
+
+        self.last_pose = msg
+```
+* Cada vez que recibe una nueva pose:
+
+  * Calcula la distancia recorrida desde la última.
+  * La suma al total acumulado.
+  * Actualiza la última posición.
+
+```python
+        msg_out = Float32()
+        msg_out.data = self.total_distance
+        self.publisher.publish(msg_out)
+```
+* Publica el total acumulado como un `Float32`.
+
+```python
+        self.get_logger().info(f"Distancia total recorrida: {self.total_distance:.2f} unidades")
+```
+* Imprime por consola la distancia total con dos decimales.
 
 ```python
 def main(args=None):
@@ -165,25 +197,29 @@ def main(args=None):
     rclpy.shutdown()
 ```
 
-* Se define la función principal del script.
-* `rclpy.init()` inicializa el sistema ROS 2 en Python.
-* Se crea una instancia del nodo `OdomListener`.
-* `rclpy.spin(node)` mantiene el nodo en ejecución escuchando mensajes.
-* Al finalizar (por ejemplo, al presionar Ctrl+C), se destruye el nodo y se apaga ROS 2.
+* Estructura estándar de ROS 2 para inicializar, ejecutar y finalizar el nodo.
 ---
 
-## 📤 Parte 5: Nodo Publisher — `triangle_mover.py`
+## 📤 Parte 5: Nodo Publisher — `triangle_stepper.py`
 
 Primero, creamos el archivo del nodo:
 
 ```bash
-touch triangle_mover.py
-chmod +x triangle_mover.py
+touch triangle_stepper.py
+chmod +x triangle_stepper.py
 ```
 
 ### 📘 ¿Qué hace este nodo?
 
-Este nodo se encarga de **enviar comandos de velocidad** al tópico `/turtle1/cmd_vel`, el cual controla el movimiento de la tortuga en Turtlesim. La lógica está diseñada para que la tortuga avance en línea recta por algunos segundos, luego gire aproximadamente 120°, y repita este patrón tres veces para formar un **triángulo equilátero**.
+Este nodo controla el movimiento de la tortuga para que recorra un **triángulo equilátero** de manera precisa, utilizando la información de odometría publicada en `/turtle1/pose`.
+
+El comportamiento es el siguiente:
+
+* La tortuga **calcula tres vértices** que forman un triángulo equilátero, usando su posición de inicio como primer punto.
+* Se **gira en el lugar** hasta alinearse con el siguiente vértice.
+* Luego **se mueve recto** exactamente 3 unidades hasta ese vértice.
+* Se detiene brevemente, **gira hacia el siguiente vértice**, y repite.
+* El triángulo se repite **indefinidamente** con precisión geométrica.
 
 
 ### 📄 Código:
@@ -191,39 +227,88 @@ Este nodo se encarga de **enviar comandos de velocidad** al tópico `/turtle1/cm
 ```python
 import rclpy
 from rclpy.node import Node
+from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
+import math
 
-class TriangleMover(Node):
+class TriangleStepper(Node):
     def __init__(self):
-        super().__init__('triangle_mover')
-        self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
-        self.timer = self.create_timer(0.5, self.move_in_triangle)
-        self.step = 0
-        self.turning = False
+        super().__init__('triangle_stepper')
+        self.pose = None
+        self.state = 'turn'
+        self.origin = None
+        self.target = None
+        self.angle_target = None
+        self.pause_time = None
 
-    def move_in_triangle(self):
+        self.subscription = self.create_subscription(Pose, '/turtle1/pose', self.update_pose, 10)
+        self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        self.timer = self.create_timer(0.1, self.control_loop)
+
+        self.L = 3.0
+        self.epsilon = 0.01
+        self.vertices = []
+        self.vertex_index = 0
+
+    def update_pose(self, msg):
+        self.pose = msg
+
+    def control_loop(self):
+        if not self.pose:
+            return
+
         msg = Twist()
 
-        if not self.turning:
-            msg.linear.x = 2.0
-            msg.angular.z = 0.0
-            self.publisher.publish(msg)
-            self.step += 1
-            if self.step % 10 == 0:
-                self.turning = True
-                self.step = 0
-        else:
-            msg.linear.x = 0.0
-            msg.angular.z = 2.0
-            self.publisher.publish(msg)
-            self.step += 1
-            if self.step >= 6:
-                self.turning = False
-                self.step = 0
+        # Inicializar triángulo solo una vez
+        if not self.vertices:
+            x0, y0 = self.pose.x, self.pose.y
+            p1 = (x0, y0)
+            p2 = (x0 + self.L, y0)
+            p3 = (x0 + self.L / 2, y0 + (self.L * math.sqrt(3)) / 2)
+            self.vertices = [p1, p2, p3]
+            self.origin = p1
+            self.target = p2
+            self.vertex_index = 1
+            self.state = 'turn'
+            return
+
+        dx = self.target[0] - self.pose.x
+        dy = self.target[1] - self.pose.y
+        angle_to_target = math.atan2(dy, dx)
+        angle_diff = self.normalize_angle(angle_to_target - self.pose.theta)
+
+        if self.state == 'turn':
+            if abs(angle_diff) > self.epsilon:
+                msg.angular.z = 1.0 * angle_diff
+            else:
+                msg.angular.z = 0.0
+                self.state = 'pause'
+                self.pause_time = self.get_clock().now()
+                self.origin = (self.pose.x, self.pose.y)
+
+        elif self.state == 'pause':
+            now = self.get_clock().now()
+            if (now - self.pause_time).nanoseconds / 1e9 > 0.3:
+                self.state = 'move'
+
+        elif self.state == 'move':
+            traveled = math.hypot(self.pose.x - self.origin[0], self.pose.y - self.origin[1])
+            if traveled < self.L:
+                msg.linear.x = 1.5
+            else:
+                msg.linear.x = 0.0
+                self.state = 'turn'
+                self.vertex_index = (self.vertex_index + 1) % 3
+                self.target = self.vertices[self.vertex_index]
+
+        self.publisher.publish(msg)
+
+    def normalize_angle(self, angle):
+        return math.atan2(math.sin(angle), math.cos(angle))
 
 def main(args=None):
     rclpy.init(args=args)
-    node = TriangleMover()
+    node = TriangleStepper()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
@@ -234,96 +319,54 @@ def main(args=None):
 ```python
 import rclpy
 from rclpy.node import Node
+from turtlesim.msg import Pose
 from geometry_msgs.msg import Twist
+import math
 ```
-* Se importan las bibliotecas necesarias:
-  * `rclpy`: biblioteca cliente de ROS 2 para Python.
-  * `Node`: clase base para definir nodos.
-  * `Twist`: tipo de mensaje usado para controlar velocidad lineal y angular (muy común en robótica móvil).
-
+* Se importan los módulos necesarios para crear un nodo, suscribirse a odometría y publicar comandos de movimiento.
 
 ```python
-class TriangleMover(Node):
+class TriangleStepper(Node):
     def __init__(self):
-        super().__init__('triangle_mover')
+        ...
 ```
-* Se define la clase `TriangleMover` que hereda de `Node`, lo cual convierte esta clase en un nodo.
-* Se inicializa el nodo con el nombre `"triangle_mover"`.
-
+* Se define el nodo `triangle_stepper` que controla el movimiento a través de odometría y lógica de trayectoria.
 
 ```python
-        self.publisher = self.create_publisher(Twist, '/turtle1/cmd_vel', 10)
+        self.vertices = []
+        self.vertex_index = 0
 ```
-* Se crea un **publicador** de mensajes tipo `Twist` en el tópico `/turtle1/cmd_vel`.
-* Este tópico controla el movimiento de la tortuga.
-* El parámetro `10` es el tamaño del *queue* de mensajes.
 
+* Se define una lista con los 3 puntos del triángulo que se recorrerán en bucle.
 
 ```python
-        self.timer = self.create_timer(0.5, self.move_in_triangle)
+    def control_loop(self):
+        ...
 ```
-* Se configura un **temporizador** que llama a la función `self.move_in_triangle()` cada 0.5 segundos.
-* Esto genera un ciclo repetitivo de movimiento.
+* Esta función se ejecuta cada 0.1 segundos y define el comportamiento secuencial:
 
+  * **`turn`**: girar hacia el siguiente vértice.
+  * **`pause`**: detenerse brevemente para asegurar estabilidad.
+  * **`move`**: avanzar en línea recta hasta alcanzar el siguiente vértice.
 
 ```python
-        self.step = 0
-        self.turning = False
+        if not self.vertices:
+            ...
 ```
-* `step` lleva un conteo de los ciclos del temporizador.
-* `turning` indica si la tortuga está girando o avanzando en línea recta.
-
+* Se inicializan los tres vértices del triángulo en función de la posición actual de la tortuga.
 
 ```python
-    def move_in_triangle(self):
-        msg = Twist()
+        self.angle_target = self.normalize_angle(...)
 ```
-* Se crea una nueva instancia del mensaje `Twist`, que contiene los comandos de velocidad a publicar.
 
+* Se calcula el ángulo que la tortuga debe alcanzar para estar alineada con el siguiente vértice.
 
 ```python
-        if not self.turning:
-            msg.linear.x = 2.0
-            msg.angular.z = 0.0
-            self.publisher.publish(msg)
-            self.step += 1
-            if self.step % 10 == 0:
-                self.turning = True
-                self.step = 0
+        self.publisher.publish(msg)
 ```
-* Si **no está girando**, se establece una velocidad **lineal** (2.0) y se mantiene sin rotación.
-* Esto hace que la tortuga avance recto.
-* Cada 10 pasos de 0.5 segundos (5 segundos), cambia al estado de giro (`turning = True`).
 
+* Se publican los comandos de velocidad en `/turtle1/cmd_vel` para mover la tortuga.
 
-```python
-        else:
-            msg.linear.x = 0.0
-            msg.angular.z = 2.0
-            self.publisher.publish(msg)
-            self.step += 1
-            if self.step >= 6:
-                self.turning = False
-                self.step = 0
-```
-* Si **está girando**, se establece una velocidad angular de 2.0 rad/s y sin avance lineal.
-* Después de 6 pasos de 0.5 segundos (3 segundos), se detiene el giro y vuelve a avanzar recto.
-* Este giro dura lo suficiente para aproximar un ángulo de 120°, completando así los vértices de un triángulo.
-
-
-```python
-def main(args=None):
-    rclpy.init(args=args)
-    node = TriangleMover()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.shutdown()
-```
-* Se define la función principal del script.
-* Se inicializa el entorno de ROS 2.
-* Se crea una instancia del nodo `TriangleMover` y se mantiene activo con `rclpy.spin()`.
-* Cuando se detiene, el nodo se destruye y ROS 2 se apaga correctamente.
-  
 ---
 
 ## ⚙️ Parte 6: Configuración del archivo `setup.py`
