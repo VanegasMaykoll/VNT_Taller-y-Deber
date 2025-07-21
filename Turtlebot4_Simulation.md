@@ -8,7 +8,7 @@ Este tutorial tiene como objetivo guiarte en el proceso de simulación del robot
 
 - [Objetivos del Tutorial](#objetivos-del-tutorial)
 -  [Requisitos Previos](#requisitos-previos)  
-1. [Instalación de Paquetes de Simulación]
+1. [Instalación de Paquetes de Simulación](#1-instalación-de-paquetes-de-simulación)
     - Instalar herramientas de desarrollo útiles 
     - Instalar Ignition Gazebo (versión Fortress)
     - Instalar el paquete Debian del simulador 
