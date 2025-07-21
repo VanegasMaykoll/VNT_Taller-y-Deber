@@ -26,7 +26,7 @@ Este tutorial tiene como objetivo guiarte en el proceso de simulación del robot
 5. [Generación de un Mapa usando el Paquete `slam_toolbox`](#5-generación-de-un-mapa-usando-el-paquete-slam_toolbox)  
     - Guardar el Mapa
     - Video de Referencia
-6. [6. Referencias](#6-referencias)
+6. [Referencias](#6-referencias)
 
 
 ## Objetivos del Tutorial
