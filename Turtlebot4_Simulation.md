@@ -6,27 +6,27 @@ Este tutorial tiene como objetivo guiarte en el proceso de simulación del robot
 
 ## Tabla de Contenidos
 
-1. [Objetivos del Tutorial](#objetivos-del-tutorial)  
-2. [Requisitos Previos](#requisitos-previos)  
-3. [1. Instalación de Paquetes de Simulación](#1-instalación-de-paquetes-de-simulación)  
+- [Objetivos del Tutorial](#objetivos-del-tutorial)
+-  [Requisitos Previos](#requisitos-previos)  
+1. [Instalación de Paquetes de Simulación](#1-instalación-de-paquetes-de-simulación)  
     - [Instalar herramientas de desarrollo útiles](#instalar-herramientas-de-desarrollo-útiles)  
     - [Instalar Ignition Gazebo (versión Fortress)](#instalar-ignition-gazebo-versión-fortress)  
     - [Instalar el paquete Debian del simulador](#instalar-el-paquete-debian-del-simulador)  
     - [Instalación desde código fuente (opcional)](#instalación-desde-código-fuente-opcional)  
-4. [2. Lanzamiento de la Simulación en el Mundo `warehouse`](#2-lanzamiento-de-la-simulación-en-el-mundo-warehouse)  
+2. [Lanzamiento de la Simulación en el Mundo `warehouse`](#2-lanzamiento-de-la-simulación-en-el-mundo-warehouse)  
     - [2.1 Lanzamiento en el Mundo `maze`](#21-lanzamiento-en-el-mundo-maze)  
     - [2.2 Lanzamiento en el Mundo `depot`](#22-lanzamiento-en-el-mundo-depot)  
     - [Control desde Terminal](#️-control-desde-terminal)  
-5. [Ignition GUI Plugins](#ignition-gui-plugins)  
-6. [3. Visualización del TurtleBot 4 en RViz2](#3-visualización-del-turtlebot-4-en-rviz2)  
+- [Ignition GUI Plugins](#ignition-gui-plugins)  
+3. [Visualización del TurtleBot 4 en RViz2](#3-visualización-del-turtlebot-4-en-rviz2)  
     - [Visualización del Modelo del Robot](#ver-el-modelo-del-robot)  
     - [Visualización de nodos con rqt_graph](#visualización-del-grafo-de-nodos-con-rqt_graph)  
-7. [4. ¿Cómo visualizar el LiDAR en Gazebo?](#4-cómo-visualizar-el-lidar-en-gazebo)  
+4. [¿Cómo visualizar el LiDAR en Gazebo?](#4-cómo-visualizar-el-lidar-en-gazebo)  
     - [¿Cómo cambiar el rango del RPLiDAR?](#cómo-cambiar-el-rango-del-rplidar)  
-8. [5. Generación de un Mapa usando el Paquete `slam_toolbox`](#5-generación-de-un-mapa-usando-el-paquete-slam_toolbox)  
+5. [Generación de un Mapa usando el Paquete `slam_toolbox`](#5-generación-de-un-mapa-usando-el-paquete-slam_toolbox)  
     - [Guardar el Mapa](#💾-guardar-el-mapa)  
     - [Video de Referencia](#🎥-video-de-referencia)  
-9. [7. Referencias](#7-referencias)
+6. [6. Referencias](#6-referencias)
 
 
 ## Objetivos del Tutorial
@@ -383,7 +383,7 @@ ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "name:
 https://github.com/user-attachments/assets/bb17deda-5221-4067-817d-1ce7f774255c
 
 
-## 7. Referencias
+## 6. Referencias
 
 - Documentación oficial: https://turtlebot.github.io/turtlebot4-user-manual/overview/  
 - Reporte de errores y comunidad: https://github.com/turtlebot/turtlebot4/issues  
