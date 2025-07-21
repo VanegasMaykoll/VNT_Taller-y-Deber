@@ -8,11 +8,11 @@ Este tutorial tiene como objetivo guiarte en el proceso de simulación del robot
 
 - [Objetivos del Tutorial](#objetivos-del-tutorial)
 -  [Requisitos Previos](#requisitos-previos)  
-1. [Instalación de Paquetes de Simulación](#1-instalación-de-paquetes-de-simulación)  
-    - [Instalar herramientas de desarrollo útiles](#Instalar-herramientas-de-desarrollo-útiles)  
-    - [Instalar Ignition Gazebo (versión Fortress)](#Instalar-ignition-gazebo-versión-fortress)  
-    - [Instalar el paquete Debian del simulador](#Instalar-el-paquete-debian-del-simulador)  
-    - [Instalación desde código fuente (opcional)](#Instalación-desde-código-fuente-opcional)  
+1. [Instalación de Paquetes de Simulación]
+    - [Instalar herramientas de desarrollo útiles] 
+    - [Instalar Ignition Gazebo (versión Fortress)]
+    - [Instalar el paquete Debian del simulador] 
+    - [Instalación desde código fuente (opcional)]
 2. [Lanzamiento de la Simulación en el Mundo `warehouse`](#2-lanzamiento-de-la-simulación-en-el-mundo-warehouse)  
     - [2.1 Lanzamiento en el Mundo `maze`](#21-lanzamiento-en-el-mundo-maze)  
     - [2.2 Lanzamiento en el Mundo `depot`](#22-lanzamiento-en-el-mundo-depot)  
