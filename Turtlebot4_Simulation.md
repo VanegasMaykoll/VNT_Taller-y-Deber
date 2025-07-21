@@ -359,7 +359,7 @@ Para visualizar el mapa generado en tiempo real, lanza RViz2 con el archivo `vie
 ros2 launch turtlebot4_viz view_robot.launch.py
 ```
 
-[![RViz con mapa](https://github.com/nabihandres/COOP_tutorials/assets/93724428/666023f5-78cb-4c04-a31a-49d8afea8aa3)](https://github.com/nabihandres/COOP_tutorials/assets/93724428/666023f5-78cb-4c04-a31a-49d8afea8aa3)
+![Captura de pantalla de 2024-03-12 12-17-02](https://github.com/nabihandres/COOP_tutorials/assets/93724428/666023f5-78cb-4c04-a31a-49d8afea8aa3)
 
 **Nota:** Asegúrate de tener corriendo Ignition Gazebo mientras RViz2 está activo, ya que esta simulación requiere ambos entornos:
 
@@ -367,7 +367,7 @@ ros2 launch turtlebot4_viz view_robot.launch.py
 ros2 launch turtlebot4_ignition_bringup turtlebot4_ignition.launch.py
 ```
 
-[![Ignition corriendo](https://github.com/nabihandres/COOP_tutorials/assets/93724428/4ed71a48-293b-4247-8292-8534123e3cab)](https://github.com/nabihandres/COOP_tutorials/assets/93724428/4ed71a48-293b-4247-8292-8534123e3cab)
+![Captura de pantalla de 2024-02-28 11-42-50](https://github.com/nabihandres/COOP_tutorials/assets/93724428/4ed71a48-293b-4247-8292-8534123e3cab)
 
 ### 💾 Guardar el Mapa
 
